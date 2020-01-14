@@ -739,7 +739,14 @@ func (t *Table) printRow(columns [][]string, rowIdx int) {
 			case ALIGN_RIGHT:
 				fmt.Fprintf(t.out, "%s", PadLeft(str, SPACE, t.cs[y]))
 			case ALIGN_LEFT:
-				fmt.Fprintf(t.out, "%s", PadRight(str, SPACE, t.cs[y]))
+				// if this is the last of the line, don't pad it out with any spaces
+				spacePadding := SPACE
+				if y == total-1 {
+					if t.noWhiteSpace {
+						spacePadding = ""
+					}
+				}
+				fmt.Fprintf(t.out, "%s", PadRight(str, spacePadding, t.cs[y]))
 			default:
 				if decimal.MatchString(strings.TrimSpace(str)) || percent.MatchString(strings.TrimSpace(str)) {
 					fmt.Fprintf(t.out, "%s", PadLeft(str, SPACE, t.cs[y]))
