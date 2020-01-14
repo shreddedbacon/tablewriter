@@ -469,9 +469,12 @@ func (t *Table) printHeading() {
 				pad = ConditionString((y == end && !t.borders.Left), SPACE, t.tablePadding)
 			}
 			spacePadding := SPACE
+
 			if y == end {
 				// if this is the last in the header of the line, don't pad it out with any spaces
-				spacePadding = ""
+				if t.noWhiteSpace {
+					spacePadding = ""
+				}
 			}
 			if is_esc_seq {
 				if !t.noWhiteSpace {
