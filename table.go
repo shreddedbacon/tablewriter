@@ -441,25 +441,30 @@ func (t *Table) printHeading() {
 			if t.noWhiteSpace {
 				pad = ConditionString((y == end && !t.borders.Left), SPACE, t.tablePadding)
 			}
+			spacePadding := SPACE
+			if y == end {
+				// if this is the last in the header of the line, don't pad it out with any spaces
+				spacePadding = ""
+			}
 			if is_esc_seq {
 				if !t.noWhiteSpace {
 					fmt.Fprintf(t.out, " %s %s",
-						format(padFunc(h, SPACE, v),
+						format(padFunc(h, spacePadding, v),
 							t.headerParams[y]), pad)
 				} else {
 					fmt.Fprintf(t.out, "%s %s",
-						format(padFunc(h, SPACE, v),
+						format(padFunc(h, spacePadding, v),
 							t.headerParams[y]), pad)
 				}
 			} else {
 				if !t.noWhiteSpace {
 					fmt.Fprintf(t.out, " %s %s",
-						padFunc(h, SPACE, v),
+						padFunc(h, spacePadding, v),
 						pad)
 				} else {
 					// the spaces between breaks the kube formatting
 					fmt.Fprintf(t.out, "%s%s",
-						padFunc(h, SPACE, v),
+						padFunc(h, spacePadding, v),
 						pad)
 				}
 			}
