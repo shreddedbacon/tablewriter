@@ -227,12 +227,12 @@ func (t *Table) SetAlignment(align int) {
 	t.align = align
 }
 
-// SetNoWhiteSpace is used to format the table to be more like kubectl
+// Set No White Space
 func (t *Table) SetNoWhiteSpace(allow bool) {
 	t.noWhiteSpace = allow
 }
 
-// SetTablePadding is used to disable whitespaces in row start to be more like kubectl
+// Set Table Padding
 func (t *Table) SetTablePadding(padding string) {
 	t.tablePadding = padding
 }
@@ -301,6 +301,33 @@ func (t *Table) Append(row []string) {
 		// Detect String height
 		// Break strings into words
 		out := t.parseDimension(v, i, n)
+
+		// Append broken words
+		line = append(line, out)
+	}
+	t.lines = append(t.lines, line)
+}
+
+// Append row to table with color attributes
+func (t *Table) Rich(row []string, colors []Colors) {
+	rowSize := len(t.headers)
+	if rowSize > t.colSize {
+		t.colSize = rowSize
+	}
+
+	n := len(t.lines)
+	line := [][]string{}
+	for i, v := range row {
+
+		// Detect string  width
+		// Detect String height
+		// Break strings into words
+		out := t.parseDimension(v, i, n)
+
+		if len(colors) > i {
+			color := colors[i]
+			out[0] = format(out[0], color)
+		}
 
 		// Append broken words
 		line = append(line, out)
@@ -441,25 +468,30 @@ func (t *Table) printHeading() {
 			if t.noWhiteSpace {
 				pad = ConditionString((y == end && !t.borders.Left), SPACE, t.tablePadding)
 			}
+			spacePadding := SPACE
+			if y == end {
+				// if this is the last in the header of the line, don't pad it out with any spaces
+				spacePadding = ""
+			}
 			if is_esc_seq {
 				if !t.noWhiteSpace {
 					fmt.Fprintf(t.out, " %s %s",
-						format(padFunc(h, SPACE, v),
+						format(padFunc(h, spacePadding, v),
 							t.headerParams[y]), pad)
 				} else {
 					fmt.Fprintf(t.out, "%s %s",
-						format(padFunc(h, SPACE, v),
+						format(padFunc(h, spacePadding, v),
 							t.headerParams[y]), pad)
 				}
 			} else {
 				if !t.noWhiteSpace {
 					fmt.Fprintf(t.out, " %s %s",
-						padFunc(h, SPACE, v),
+						padFunc(h, spacePadding, v),
 						pad)
 				} else {
 					// the spaces between breaks the kube formatting
 					fmt.Fprintf(t.out, "%s%s",
-						padFunc(h, SPACE, v),
+						padFunc(h, spacePadding, v),
 						pad)
 				}
 			}
